@@ -4,6 +4,7 @@ import { Mail, Lock, User, ArrowRight, Stethoscope, Chrome, AlertCircle } from '
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   GoogleAuthProvider 
@@ -78,10 +79,23 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
     setError(null);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithRedirect(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const userProfile = await getOrCreateUserProfile(result.user.uid, result.user.email!, result.user.displayName);
+      onAuth(userProfile);
     } catch (err: any) {
-      setError(err.message);
-      setIsLoading(false);
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/popup-blocked') {
+        // Fallback to redirect for mobile browsers
+        try {
+          const provider = new GoogleAuthProvider();
+          await signInWithRedirect(auth, provider);
+        } catch (redirectErr: any) {
+          setError(redirectErr.message);
+          setIsLoading(false);
+        }
+      } else {
+        setError(err.message);
+        setIsLoading(false);
+      }
     }
   };
 

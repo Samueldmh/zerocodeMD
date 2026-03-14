@@ -405,8 +405,10 @@ export default function App() {
   };
 
   const handleDiscardSession = () => {
+    if (pendingCloudSession?.quiz?.title) {
+      clearedSessionTitleRef.current = pendingCloudSession.quiz.title;
+    }
     setPendingCloudSession(null);
-    handleRestart();
   };
 
   const handleLogout = async () => {
@@ -681,7 +683,7 @@ export default function App() {
 
           {state === 'QUIZ' && quiz && (
             <motion.div
-              key="quiz"
+              key={`quiz-${quiz.title}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
