@@ -61,8 +61,13 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
-          // App.tsx's onAuthStateChanged will handle the user state and Firestore doc creation
-          setIsLoading(true); 
+          // Ensure the user profile is created/fetched and trigger onAuth
+          const userProfile = await getOrCreateUserProfile(
+            result.user.uid, 
+            result.user.email!, 
+            result.user.displayName
+          );
+          onAuth(userProfile);
         }
       } catch (err: any) {
         let message = err.message;
@@ -72,7 +77,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuth }) => {
       }
     };
     checkRedirect();
-  }, []);
+  }, [onAuth]);
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
