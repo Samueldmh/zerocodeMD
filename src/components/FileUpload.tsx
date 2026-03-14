@@ -51,6 +51,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isGenerating, 
   }, [isGenerating, displayCount, displayType]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isGenerating) return;
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       if (selectedFile.size > 25 * 1024 * 1024) {
@@ -64,6 +65,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isGenerating, 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
+    if (isGenerating) return;
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const droppedFile = e.dataTransfer.files[0];
       if (droppedFile.size > 25 * 1024 * 1024) {
@@ -166,10 +168,14 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isGenerating, 
     <div className="w-full max-w-2xl mx-auto">
       <div
         id="drop-zone"
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragOver={(e) => { 
+          e.preventDefault(); 
+          if (!isGenerating) setIsDragging(true); 
+        }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         className={`relative border-4 border-dashed rounded-[3rem] p-16 transition-all duration-500 flex flex-col items-center justify-center text-center overflow-hidden ${
+          isGenerating ? 'opacity-50 cursor-not-allowed border-white/5 bg-quizard-card' :
           isDragging ? 'border-quizard-accent bg-quizard-accent/5 shadow-[0_0_50px_rgba(0,229,255,0.2)] scale-[1.02]' : 'border-white/5 bg-quizard-card hover:border-white/10 shadow-2xl'
         }`}
       >
@@ -181,6 +187,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isGenerating, 
           onChange={handleFileChange}
           accept=".pdf,.docx,.pptx,.jpg,.jpeg,.png,.webp"
           className="hidden"
+          disabled={isGenerating}
         />
 
         {!file ? (
@@ -199,8 +206,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isGenerating, 
             </p>
             <button
               id="select-file-btn"
-              onClick={() => fileInputRef.current?.click()}
-              className="px-10 py-4 bg-quizard-accent text-quizard-bg rounded-[1.5rem] font-black hover:scale-110 active:scale-95 transition-all shadow-[0_0_30px_rgba(0,229,255,0.3)] uppercase tracking-widest text-xs"
+              onClick={() => {
+                if (!isGenerating) fileInputRef.current?.click();
+              }}
+              disabled={isGenerating}
+              className="px-10 py-4 bg-quizard-accent text-quizard-bg rounded-[1.5rem] font-black hover:scale-110 active:scale-95 transition-all shadow-[0_0_30px_rgba(0,229,255,0.3)] uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               Select Dataset
             </button>
@@ -220,7 +230,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isGenerating, 
               <button
                 id="remove-file-btn"
                 onClick={() => setFile(null)}
-                className="p-3 hover:bg-white/10 rounded-2xl transition-all hover:rotate-90"
+                disabled={isGenerating}
+                className="p-3 hover:bg-white/10 rounded-2xl transition-all hover:rotate-90 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:rotate-0"
               >
                 <X className="w-6 h-6 text-white/20" />
               </button>
@@ -232,27 +243,31 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isGenerating, 
               <div className="flex p-2 bg-black/20 rounded-[2rem] mb-8 border border-white/5">
                 <button
                   onClick={() => {
+                    if (isGenerating) return;
                     setQuizType('OBJECTIVE');
                     if (questionCount > 200) setQuestionCount(200);
                   }}
+                  disabled={isGenerating}
                   className={`flex-1 py-4 text-[10px] font-black rounded-[1.5rem] transition-all uppercase tracking-[0.2em] ${
                     quizType === 'OBJECTIVE' 
                       ? 'bg-quizard-accent text-quizard-bg shadow-[0_0_20px_rgba(0,229,255,0.3)]' 
                       : 'text-white/40 hover:text-white'
-                  }`}
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   Objective (MCQ)
                 </button>
                 <button
                   onClick={() => {
+                    if (isGenerating) return;
                     setQuizType('THEORY');
                     if (questionCount > 20) setQuestionCount(10);
                   }}
+                  disabled={isGenerating}
                   className={`flex-1 py-4 text-[10px] font-black rounded-[1.5rem] transition-all uppercase tracking-[0.2em] ${
                     quizType === 'THEORY' 
                       ? 'bg-quizard-accent text-quizard-bg shadow-[0_0_20px_rgba(0,229,255,0.3)]' 
                       : 'text-white/40 hover:text-white'
-                  }`}
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   Theory (Essay)
                 </button>
@@ -264,6 +279,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isGenerating, 
                   min="1" 
                   max={quizType === 'OBJECTIVE' ? 200 : 20}
                   value={questionCount}
+                  disabled={isGenerating}
                   onChange={(e) => {
                     const val = parseInt(e.target.value);
                     const max = quizType === 'OBJECTIVE' ? 200 : 20;
@@ -279,7 +295,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUpload, isGenerating, 
                     if (questionCount < min) setQuestionCount(min);
                     if (questionCount > max) setQuestionCount(max);
                   }}
-                  className="w-full px-8 py-6 bg-white/5 border border-white/10 rounded-[2rem] focus:ring-4 focus:ring-quizard-accent/20 focus:border-quizard-accent outline-none transition-all font-black text-white text-2xl tracking-tighter"
+                  className="w-full px-8 py-6 bg-white/5 border border-white/10 rounded-[2rem] focus:ring-4 focus:ring-quizard-accent/20 focus:border-quizard-accent outline-none transition-all font-black text-white text-2xl tracking-tighter disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <div className="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase tracking-[0.2em] text-quizard-accent bg-quizard-accent/10 px-4 py-2 rounded-xl border border-quizard-accent/20">
                   {quizType === 'OBJECTIVE' ? 'MCQs' : 'Questions'}

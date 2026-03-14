@@ -33,7 +33,7 @@ export async function generateQuizFromContent(
 ): Promise<{ quiz: Quiz; usage: any }> {
   const model = "gemini-3-flash-preview";
     const prompt = `
-    Expert Medical Examiner Persona: Strictly analyze "${fileName}" to generate ${questionCount} ${quizType} questions.
+    Expert Medical Examiner Persona: Strictly analyze "${fileName}" to generate EXACTLY ${questionCount} ${quizType} questions. Do not generate more or fewer than ${questionCount} questions.
     
     CONCISE EXAM STANDARDS (USMLE/PLAB/MRCP):
     1. ${quizType === 'OBJECTIVE' ? 'MCQ: 4 options, 1 correct. Format: Clinical vignette -> Question -> Options.' : 'THEORY: High-yield essay question.'}
@@ -45,9 +45,10 @@ export async function generateQuizFromContent(
     5. DATA INTEGRITY: Citations required.
     
     Requirements:
+    - You MUST return EXACTLY ${questionCount} questions in the "questions" array.
     ${quizType === 'OBJECTIVE' ? 
-      'MCQ format only. "type": "OBJECTIVE".' : 
-      'Essay format only. "type": "THEORY". Include 3-10 "keyPoints" for marking. Set "options": [] and "correctAnswerIndex": -1.'}
+      '- MCQ format only. "type": "OBJECTIVE".' : 
+      '- Essay format only. "type": "THEORY". Include 3-10 "keyPoints" for marking. Set "options": [] and "correctAnswerIndex": -1.'}
   `;
 
   const parts = data.map(item => ({
@@ -123,7 +124,7 @@ export async function generateQuizFromText(
   const model = "gemini-3-flash-preview";
   
     const prompt = `
-    Expert Medical Examiner Persona: Strictly analyze the provided text from "${fileName}" to generate ${questionCount} ${quizType} questions.
+    Expert Medical Examiner Persona: Strictly analyze the provided text from "${fileName}" to generate EXACTLY ${questionCount} ${quizType} questions. Do not generate more or fewer than ${questionCount} questions.
     
     CONTENT:
     ${text}
@@ -138,9 +139,10 @@ export async function generateQuizFromText(
     5. DATA INTEGRITY: Citations required.
     
     Requirements:
+    - You MUST return EXACTLY ${questionCount} questions in the "questions" array.
     ${quizType === 'OBJECTIVE' ? 
-      'MCQ format only. "type": "OBJECTIVE".' : 
-      'Essay format only. "type": "THEORY". Include 3-10 "keyPoints" for marking. Set "options": [] and "correctAnswerIndex": -1.'}
+      '- MCQ format only. "type": "OBJECTIVE".' : 
+      '- Essay format only. "type": "THEORY". Include 3-10 "keyPoints" for marking. Set "options": [] and "correctAnswerIndex": -1.'}
   `;
 
   const response = await withRetry(() => ai.models.generateContent({
