@@ -26,36 +26,4 @@ export interface QuizResult {
   foundPoints?: string[];
 }
 
-export type AppState = 'IDLE' | 'UPLOADING' | 'GENERATING' | 'QUIZ' | 'RESULTS' | 'ADMIN';
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: 'user' | 'admin';
-  currentStreak?: number;
-  longestStreak?: number;
-  lastActiveDate?: string;
-  activeSession?: {
-    state: AppState;
-    quiz: Quiz | null;
-    results: QuizResult[] | null;
-    quizProgress?: {
-      currentIndex: number;
-      allResults: (QuizResult | null)[];
-    };
-    lastUpdated: string;
-  };
-}
-
-export interface TokenUsage {
-  id: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  promptTokens: number;
-  candidatesTokens: number;
-  totalTokens: number;
-  action: string;
-  createdAt: string;
-}
+export type AppState = 'IDLE' | 'UPLOADING' | 'GENERATING' | 'QUIZ' | 'RESULTS';

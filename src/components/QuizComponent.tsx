@@ -7,12 +7,10 @@ import { Quiz, Question, QuizResult } from '../types';
 interface QuizComponentProps {
   quiz: Quiz;
   onComplete: (results: QuizResult[]) => void;
-  onProgressUpdate?: (currentIndex: number, allResults: (QuizResult | null)[]) => void;
-  initialProgress?: { currentIndex: number; allResults: (QuizResult | null)[] };
   onQuit: () => void;
 }
 
-export const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, onProgressUpdate, initialProgress, onQuit }) => {
+export const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, onQuit }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [theoryAnswer, setTheoryAnswer] = useState('');
@@ -20,24 +18,7 @@ export const QuizComponent: React.FC<QuizComponentProps> = ({ quiz, onComplete, 
   const [allResults, setAllResults] = useState<(QuizResult | null)[]>(new Array(quiz.questions.length).fill(null));
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
-  // Load progress on mount or when initialProgress changes
-  React.useEffect(() => {
-    if (initialProgress) {
-      // Only update if it's different to avoid unnecessary re-renders
-      if (currentIndex !== initialProgress.currentIndex ||
-          JSON.stringify(allResults) !== JSON.stringify(initialProgress.allResults)) {
-        setCurrentIndex(initialProgress.currentIndex);
-        setAllResults(initialProgress.allResults);
-      }
-    }
-  }, [initialProgress, quiz.title, quiz.questions.length]);
-
-  // Save progress on changes
-  React.useEffect(() => {
-    if (onProgressUpdate) {
-      onProgressUpdate(currentIndex, allResults);
-    }
-  }, [currentIndex, allResults, quiz.title, onProgressUpdate]);
+  // Removed progress loading and saving effects
 
   const currentQuestion = quiz.questions[currentIndex];
   const isTheory = quiz.type === 'THEORY';

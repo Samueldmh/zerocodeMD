@@ -8,10 +8,9 @@ interface ResultSummaryProps {
   results: QuizResult[];
   onRestart: () => void;
   isTheory?: boolean;
-  currentStreak?: number;
 }
 
-export const ResultSummary: React.FC<ResultSummaryProps> = ({ results, onRestart, isTheory, currentStreak }) => {
+export const ResultSummary: React.FC<ResultSummaryProps> = ({ results, onRestart, isTheory }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   
   const total = results.length;
@@ -88,13 +87,12 @@ export const ResultSummary: React.FC<ResultSummaryProps> = ({ results, onRestart
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
           {[
             { label: 'Total Items', value: total, icon: <BookOpen className="w-4 h-4" /> },
             { label: 'Correct', value: score, icon: <CheckCircle className="w-4 h-4" />, color: 'text-emerald-400' },
             { label: 'Incorrect', value: total - score, icon: <XCircle className="w-4 h-4" />, color: 'text-rose-400' },
             { label: 'Time Spent', value: '12:45', icon: <Clock className="w-4 h-4" /> },
-            { label: 'Day Streak', value: currentStreak || 0, icon: <Flame className="w-4 h-4" />, color: 'text-orange-400' },
           ].map((stat, i) => (
             <div key={i} className="bg-white/5 rounded-3xl p-6 border border-white/5 flex flex-col items-center text-center">
               <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center mb-4 text-white/30">

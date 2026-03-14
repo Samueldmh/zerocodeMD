@@ -26,29 +26,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      let errorMessage = "An unexpected error occurred.";
-      let isQuotaError = false;
-
-      try {
-        if (this.state.error?.message.includes('{')) {
-          const parsedError = JSON.parse(this.state.error.message);
-          if (parsedError.error?.includes('Missing or insufficient permissions')) {
-            errorMessage = "You do not have permission to access this data.";
-          } else if (parsedError.error?.includes('quota') || parsedError.error?.includes('resource-exhausted')) {
-            errorMessage = "Daily database quota exceeded. Please try again tomorrow.";
-            isQuotaError = true;
-          } else {
-            errorMessage = parsedError.error || errorMessage;
-          }
-        } else if (this.state.error?.message.includes('quota') || this.state.error?.message.includes('resource-exhausted')) {
-          errorMessage = "Daily database quota exceeded. Please try again tomorrow.";
-          isQuotaError = true;
-        } else {
-          errorMessage = this.state.error?.message || errorMessage;
-        }
-      } catch (e) {
-        errorMessage = this.state.error?.message || errorMessage;
-      }
+      const errorMessage = this.state.error?.message || "An unexpected error occurred.";
 
       return (
         <div className="min-h-screen bg-quizard-bg flex items-center justify-center p-4 font-sans text-white">
@@ -60,12 +38,6 @@ export class ErrorBoundary extends Component<Props, State> {
             <p className="text-white/60 mb-8 text-sm leading-relaxed font-medium">
               {errorMessage}
             </p>
-            
-            {isQuotaError ? (
-              <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl text-orange-400 text-xs font-bold mb-6 text-left">
-                The free tier of the database has reached its daily limit. Your progress will be saved locally, but cloud features are temporarily disabled.
-              </div>
-            ) : null}
 
             <button
               onClick={() => window.location.reload()}
